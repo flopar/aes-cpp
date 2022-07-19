@@ -13,7 +13,7 @@ void testSUG(AES test){
 
 
 int main(){
-	AES t = AES("test","test");
+	AES t = AES("AnaAreMereMari12","test");
 	t.encrypt();
 	return 0;
 }
