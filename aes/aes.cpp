@@ -10,14 +10,17 @@ AES::AES(const std::string key, std::string message){
 	// according to the aes standard Nb must be 4
 	this->Nb = 4;
 	// the number of rounds depends on the size of the key
-	if(this->mMessageSize == 4){
+	if(this->Nk == 4){
 		this->Nr = 10;
 	}
-	if(this->mMessageSize == 6){
+	else if(this->Nk == 6){
 		this->Nr = 12;
 	}
-	if(this->mMessageSize == 8){
+	else if(this->Nk == 8){
 		this->Nr = 14;
+	}
+	else{
+		throw std::runtime_error("Only fixed size keys are supported for now...");
 	}
 
 }
@@ -37,10 +40,15 @@ void AES::setMessage(const std::string message){
 
 // here begins the fun T_T
 std::string AES::encrypt(){
-	std::vector<unsigned int> wordList;
-	this->expandKey(wordList);
+	std::vector<unsigned int> keyList;
+	this->expandKey(keyList);
+	std::vector<std::vector<uint8_t>> stateMatrix = this->createStateMatrix();
+	this->addRoundKey(0, keyList, stateMatrix);
+	return "";
 }
 
+
+// maybe keep it at bytes instead of words
 int AES::expandKey(std::vector<unsigned int>& wordList){
 	if(!this->mKeySize){
 		return -1;
@@ -104,5 +112,64 @@ void AES::substituteByte(uint8_t& byte){
 	byte = sBlock[int((byte&(mask<<4))>>4)][int(mask&byte)];
 }
 
+std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
+	/* @Description: this function will take the passed message and create a a 4x4 state matrix
+	 *		 as described in the aes-standard. The matrix has the following layout:
+	 *		 
+	 *		 |-----|-----|-----|-----|
+	 *		 | B00 | B04 | B8  | B12 |
+	 *		 |-----|-----|-----|-----|
+	 *		 | B01 | B05 | B9  | B13 |  , where BXX -> B  = short for Byte
+	 *		 |-----|-----|-----|-----|              -> XX = Byte number (position in the
+	 *		 | B02 | B06 | B10 | B14 |                      passed message)
+	 *		 |-----|-----|-----|-----|
+	 *		 | B03 | B07 | B11 | B15 |
+	 *		 |-----|-----|-----|-----|		 
+	 */
+	std::vector<std::vector<uint8_t>> stateMatrix;
+	std::vector<uint8_t> column;
+	for(int i=0; i<4; i++){
+		for(int j=0; j<Nb; j++){
+			column.emplace_back(std::move(this->mMessage[(j*4)+i]));
+		}
+		stateMatrix.emplace_back(std::move(column));
+	}
+	/*for(int i=0;i<4;i++){
+		for(int j=0;j<4;j++){
+			std::cout << (char)stateMatrix[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}*/
+	return stateMatrix;
+}
 
+void AES::addRoundKey(uint8_t round, std::vector<unsigned int>& keyList, std::vector<std::vector<uint8_t>>& stateMatrix){
+	// Key is a list of words, stateMatrix is a list of bytes
+	// TODO: Combine them in a way
+	for(int i=round*4; i<4; i++){
+
+						
+	}
+}
+
+// Utility
+
+// For this function we should use std::array instead of the normal C-Pointers
+// therefore we rule out possible stack overflows where someone tries to increase
+// the adress of the iterator and access unauthorized memory
+std::array<uint8_t, 4> AES::wordToBytes(uint32_t word){
+	std::array<uint8_t, 4> bytes;
+	for(int i=0; i<4; i++){
+		bytes[i] = static_cast<uint8_t>(word&0xFF);
+		word >>=8;
+	}
+	return bytes;
+}
+uint32_t AES::bytesToWord(std::array<uint8_t, 4> bytes){
+	uint32_t word = 0;
+	for(int i=3; i>=0; i--){
+		word |= (bytes[i]<<8*i);
+	}
+	return word;
+}
 

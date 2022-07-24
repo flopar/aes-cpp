@@ -1,4 +1,4 @@
-#include <aes.hpp>
+include <aes.hpp>
 #include <iostream>
 
 void testSUG(AES test){
@@ -13,7 +13,8 @@ void testSUG(AES test){
 
 
 int main(){
-	AES t = AES("AnaAreMereMari12","test");
+	// AES(key, message)
+	AES t = AES("SuperSecretKey3!","SuperSecretMessg");
 	t.encrypt();
 	return 0;
 }
