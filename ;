@@ -1,0 +1,107 @@
+#include<cstddef>
+#include<cstdint>
+#include<stdexcept>
+#include<iostream>
+
+
+#include<vector.hpp>
+
+
+template<class T>
+math::vector<T>::vector(){
+	this->mDimension = 0;
+	this->mTranspose = false;
+}
+
+
+template<class T>
+math::vector<T>::vector(const uint64_t dimension, const bool transpose){
+	this->mDimension = dimension;
+	this->mTranspose = transpose;
+	this->mValues = std::vector<T>(dimension, 0);
+}
+
+template<class T>
+math::vector<T>::vector(const std::vector<T> values, const bool transpose){
+	this->mDimension = values.size();
+	this->mTranspose = transpose;
+	this->mValues = values;
+}
+
+/* --- Setters and Getters --- */
+
+template<class T>
+void math::vector<T>::setDimension(const uint64_t dimension){
+	this->mDimension = dimension;
+}
+
+template<class T>
+uint64_t math::vector<T>::getDimension() const{
+	return this->mDimension;
+}
+
+template<class T>
+void math::vector<T>::setTranspose(const bool transpose){
+	this->mTranspose = transpose;
+}
+
+template<class T>
+bool math::vector<T>::getTranspose() const{
+	return this->mTranspose;
+}
+
+template<class T>
+void math::vector<T>::setValues(const std::vector<T> values){
+	this->mValues = values;
+}
+
+template<class T>
+std::vector<T> math::vector<T>::getValues() const{
+	return this->mValues;
+}
+
+template<class T>
+void math::vector<T>::push_back(T value){
+	if(this->mDimension >= UINT64_MAX){
+		throw std::out_of_range("Cannot add any more elements to the vector. Maximum supported length reached");
+	}
+	this->mValues.push_back(value);
+	this->mDimension++;
+}
+
+
+template<class T>
+math::vector<T> math::vector<T>::operator+(const math::vector<T>& vec){
+	if((vec.getTranspose() != this->mTranspose) && (vec.getDimension() != this->getDimension())){
+		throw std::invalid_argument("The vector's dimension don't match.");
+	}
+	for(size_t index = 0; index < this->mDimension; index++){
+		this->mValues.at(index) += vec.getValues().at(index);
+	}
+	return *this;
+}
+
+// think of ways to define templates -> the compiler needs it as this can be compiled after the
+// main.cpp file, therefore in main an error will be thrown because the compiler cannot define the
+// type before compiling this file :S (kinda hard to understand IMO)
+// read this: ->https://stackoverflow.com/questions/8752837/undefined-reference-to-template-class-constructor
+//            ->https://isocpp.org/wiki/faq/templates#templates-defn-vs-decl
+
+// Define the class for the following data types
+// Integers
+template class math::vector<int8_t>;
+template class math::vector<int16_t>;
+template class math::vector<int32_t>;
+template class math::vector<int64_t>;
+template class math::vector<uint8_t>;
+template class math::vector<uint16_t>;
+template class math::vector<uint32_t>;
+template class math::vector<uint64_t>;
+// Floating point
+template class math::vector<double>;
+template class math::vector<float>;
+
+
+ostream& operator<<(ostream& os, const math::vector<T> vec){
+	return os;
+}

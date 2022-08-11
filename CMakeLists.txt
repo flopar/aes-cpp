@@ -13,9 +13,16 @@ project(AES	VERSION 1.0
 		DESCRIPTION "AES implementation"
 		LANGUAGES CXX)
 
+add_subdirectory(math)
 add_subdirectory(aes)
 add_subdirectory(test)
 
-target_include_directories(test PUBLIC aes)
+target_include_directories(test PUBLIC aes math)
 
+
+target_link_libraries(aes math)
 target_link_libraries(test aes)
+
+
+add_dependencies(aes math)
+add_dependencies(test aes)

@@ -54,11 +54,29 @@ int AES::expandKey(std::vector<unsigned int>& wordList){
 		return -1;
 	}	
 
-	// for each 4 bytes create one word and add it to the list
+	/* @Description: for each 4 bytes create one word and add it to the list, they words will be
+	 *		 arranged column wise. Therefore words will also be column wise as well.
+	 *		 This is due to the addRoundKey-Function used later by the
+	 *		 encryption/decryption algorithms.
+	 *   key layout: 
+	 *
+	 *
+	 *		 |-----|-----|-----|-----|
+	 *		 | K00 | K04 | K08 | K12 |
+	 *		 |-----|-----|-----|-----|
+	 *		 | K01 | K05 | K09 | K13 |  , where KXX -> K = short for Key-Byte
+	 *		 |-----|-----|-----|-----|              -> XX = Byte number (position in the
+	 *		 | K02 | K06 | K10 | K14 |                      passed key)
+	 *		 |-----|-----|-----|-----|
+	 *		 | K03 | K07 | K11 | K15 |
+	 *		 |-----|-----|-----|-----|
+	 *
+	 *
+	 */
 	unsigned int tempWord = 0;
 	for(size_t i=0; i<this->Nk; i++){
 		for(int j=0; j<4;j++){
-			tempWord |= (unsigned int)(mKey[(i*4)+j]<<(j*8));
+			tempWord |= (unsigned int)(mKey[(j*4)+i]<<(j*8));
 		}
 		wordList.push_back(tempWord);
 		// reset for the next 4 bytes
@@ -128,12 +146,14 @@ std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
 	 */
 	std::vector<std::vector<uint8_t>> stateMatrix;
 	std::vector<uint8_t> column;
+	// TODO: this doesnt work properly -> fix the problem
 	for(int i=0; i<4; i++){
 		for(int j=0; j<Nb; j++){
 			column.emplace_back(std::move(this->mMessage[(j*4)+i]));
 		}
 		stateMatrix.emplace_back(std::move(column));
 	}
+	//printMatrix(stateMatrix);
 	/*for(int i=0;i<4;i++){
 		for(int j=0;j<4;j++){
 			std::cout << (char)stateMatrix[i][j] << " ";
@@ -143,12 +163,18 @@ std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
 	return stateMatrix;
 }
 
-void AES::addRoundKey(uint8_t round, std::vector<unsigned int>& keyList, std::vector<std::vector<uint8_t>>& stateMatrix){
+void AES::addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, std::vector<std::vector<uint8_t>>& stateMatrix){
 	// Key is a list of words, stateMatrix is a list of bytes
 	// TODO: Combine them in a way
-	for(int i=round*4; i<4; i++){
-
-						
+	int keyIndex = round*4;
+	std::array<uint8_t, 4> keyBytes;
+	for(int i=keyIndex; i<(keyIndex+4); i++){
+		// get word from keyList -> transform it to an array of 4 bytes and XOR them with
+		// the state matrix
+		keyBytes = this->wordToBytes(keyList[i]);
+		for(int j=0; j<4; j++){
+			stateMatrix[keyIndex%4][j] ^= keyList[j]; 
+		}
 	}
 }
 
@@ -171,5 +197,14 @@ uint32_t AES::bytesToWord(std::array<uint8_t, 4> bytes){
 		word |= (bytes[i]<<8*i);
 	}
 	return word;
+}
+
+void AES::printMatrix(const std::vector<std::vector<uint8_t>>& matrix){
+	for(size_t i=0; i<matrix.size(); i++){
+		for(size_t j=0;matrix[i].size(); j++){
+			std::cout << (unsigned int)matrix[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
 }
 
