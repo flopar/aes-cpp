@@ -21,12 +21,18 @@ int main(){
 	math::matrix<uint8_t>mat1(2,2);
 	mat1.print();
 	std::vector<uint8_t> t{3,3};
-	mat1.addRow(t);
+	mat1.addColumn(t);
 	mat1.print();
-
-
-
-
+	std::vector<uint8_t> h = {2,2};
+	math::vector<uint8_t>test(h);
+	mat1.addColumn(test);
+	mat1.print();
+	mat1.removeColumn(3);
+	mat1.print();
+	mat1.removeColumn(3);
+	mat1.print();
+	mat1.removeColumn(3);
+	mat1.print();
 
 
 
@@ -47,8 +53,6 @@ int main(){
 
 /*
 	math::vector<uint8_t>test1;
-	std::vector<uint8_t> h = {2,2,2};
-	math::vector<uint8_t>test(h);
 	uint8_t var = 2;
 	test1.push_back(var);
 	test1.push_back(var);
