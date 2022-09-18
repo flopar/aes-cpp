@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12...3.21)
 
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
-	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}i)
+	cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 endif()
 
 
@@ -16,13 +16,15 @@ project(AES	VERSION 1.0
 add_subdirectory(math)
 add_subdirectory(aes)
 add_subdirectory(test)
+add_subdirectory(utility)
 
-target_include_directories(test PUBLIC aes math)
 
-
-target_link_libraries(aes math)
+target_include_directories(test PUBLIC aes)
+target_include_directories(aes PUBLIC utility math)
+target_link_libraries(aes math utility)
 target_link_libraries(test aes)
 
 
-add_dependencies(aes math)
-add_dependencies(test aes)
+
+
+

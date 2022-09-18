@@ -1,7 +1,7 @@
 #include <aes.hpp>
 #include <iostream>
-#include <vector.hpp>
-#include <matrix.hpp>
+#include <utility.hpp>
+
 
 void testSUG(AES test){
 	std::cout << "object's current key: " << test.getKey() << std::endl << "object's current message: " << test.getMessage() << std::endl;
@@ -24,32 +24,38 @@ int main(){
 	mat1.addColumn(t);
 	mat1.print();
 	std::vector<uint8_t> h = {2,2};
-	math::vector<uint8_t>test(h);
+	math::vector<uint8_t>test(h, true);
 	mat1.addColumn(test);
 	mat1.print();
-	mat1.removeColumn(3);
+	std::vector<uint8_t> g = {0,0,0,0};
+	math::vector<uint8_t>gtest(g);
+
+	mat1.replaceRow(gtest, 1);
 	mat1.print();
-	mat1.removeColumn(3);
+	std::vector<uint8_t>c0{5,5};
+	math::vector<uint8_t>cTest(c0, true);
+	math::matrix<uint8_t> mat2 = mat1;	
+	mat2.replaceColumn(cTest, 3);
+	mat2.print();
 	mat1.print();
-	mat1.removeColumn(3);
-	mat1.print();
-
-
-
-
-
-
-
-
-
+	math::matrix<uint8_t> mat3 = mat1^mat2;
+	mat3.print();
+	
+	std::vector<uint8_t> vec1 = {1,2};
+	std::vector<uint8_t> vec2 = {3,4};
+	math::vector<uint8_t> vt1(vec1);
+	math::vector<uint8_t> vt2(vec2);
+	vt1.print();
+	vt2.print();
+	math::vector<uint8_t> vt3 = vt1^vt2;
+	vt3.print();
+	// INFO: AES(key, message)
+//	AES t = AES("SuperSecretKey3!","SuperSecretMessg");
+//	t.encrypt();
 
 	return 0;
 
 
-	// INFO: AES(key, message)
-	/*AES t = AES("SuperSecretKey3!","SuperSecretMessg");
-	t.encrypt();
-	*/
 
 /*
 	math::vector<uint8_t>test1;
