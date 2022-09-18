@@ -16,9 +16,11 @@ template class math::vector<uint8_t>;
 template class math::vector<uint16_t>;
 template class math::vector<uint32_t>;
 template class math::vector<uint64_t>;
+
 // Floating point
-template class math::vector<double>;
-template class math::vector<float>;
+// INFO: this does not work with every operator like XOR
+//template class math::vector<double>;
+//template class math::vector<float>;
 
 /* --- Constructors --- */
 
@@ -154,6 +156,19 @@ void math::vector<T>::print(){
 	
 }
 
+template<class T>
+math::vector<T> math::vector<T>::operator^(const math::vector<T>& vec){
+	if(this->mTranspose != vec.getTranspose() || this->mDimension != vec.getDimension()){
+		throw std::invalid_argument("vector::XOR-Operator(): operands do not match! Check dimension or transpose-flag.\n");
+	}
+	math::vector<T> ret(this->mDimension, this->mTranspose);
+	std::vector<T> retVal = ret.getValues(), vecVal = vec.getValues();
+	for(size_t i=0; i<this->mDimension; i++){
+		retVal[i] = this->mValues[i]^vecVal[i];
+	}
+	ret.setValues(retVal);
+	return ret;
+}
 /* IDK why is not working:w
 template<class U>
 std::ostream& math::operator<<(std::ostream& os, const math::vector<U>& vec){
@@ -175,25 +190,3 @@ std::ostream& math::operator<<(std::ostream& os, const math::vector<U>& vec){
 }
 */
 
-/*
-template<class T>
-template<class U>
-auto math::vector<T>::operator+(const math::vector<U>& vec){
-	if((vec.getTranspose() != this->mTranspose) || (vec.getDimension() != this->getDimension())){
-		throw std::invalid_argument("The vector's dimension don't match.");
-	}
-	std::vector<U> vecVal = vec.getValues();
-	if(sizeof(T) < sizeof(U)){
-		for(uint64_t index = 0; index < this->mDimension; index++){
-			// always add and return the bigger sized type to avoid data loss
-			this->mValues.at(index) += vecVal.at(index);
-		}
-		return *this;
-	}
-	for(uint64_t index = 0; index < this->mDimension; index++){
-		// always add and return the bigger sized type to avoid data loss
-		vecVal.at(index) += this->mValues.at(index);
-	}
-	vec.setValues(vecVal);
-	return vec;	
-}*/
