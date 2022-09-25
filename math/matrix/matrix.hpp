@@ -6,8 +6,10 @@ template<class T>
 class matrix
 {
 	private:
+		// indexes
 		uint32_t mRows;
 		uint32_t mColumns;
+		
 		bool mTranspose;
 		std::vector<std::vector<T>> mValues;
 	public:
@@ -15,8 +17,8 @@ class matrix
 		matrix(const uint32_t rows, const uint32_t columns, bool transpose = false);
 		matrix(const std::vector<std::vector<T>> matrix, bool transpose = false);
 
-		uint32_t getNumberOfRows() const;
-		uint32_t getNumberOfColumns() const;
+		uint32_t getRowsSize() const;
+		uint32_t getColumnsSize() const;
 	
 		
 		std::vector<T> getRow(const uint32_t row) const;
@@ -37,7 +39,7 @@ class matrix
 		void replaceColumn(const std::vector<T> column, const uint32_t index);
 		void replaceColumn(const math::vector<T> column, const uint32_t index);
 		void removeColumn(const uint32_t column);
-		void print();
+		void print() const;
 		
 		math::matrix<T> operator^ (math::matrix<T> matrix);
 };

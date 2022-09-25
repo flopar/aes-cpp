@@ -26,5 +26,10 @@ uint32_t bytesToWord(const std::array<uint8_t, 4> bytes){
 	return word;
 }
 
+uint8_t byteUpperBits(const uint8_t byte){
+	return ((byte & 0xF0) >> 4);
+}
 
-
+uint8_t byteLowerBits(const uint8_t byte){
+	return (byte & 0x0F);
+}

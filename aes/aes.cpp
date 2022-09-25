@@ -44,29 +44,56 @@ std::string AES::encrypt(){
 	this->expandKey(keyList);
 	//until here works
 	math::matrix<uint8_t> stateMatrix(this->createStateMatrix());
-	for(uint8_t i=0; i<this->Nr; i++){
-		this->addRoundKey(i, keyList, stateMatrix);
+	this->addRoundKey(0, keyList, stateMatrix);
+	for(uint8_t i=1; i<this->Nb; i++){
+		this->subBytes(stateMatrix);
+		//until here works
+		//this->shiftRows(stateMatrix);
+		//this->addRoundKey(i, keyList, stateMatrix);
 	}
-	//stateMatrix.print();
 	return "";
 }
 
-void AES::addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, const math::matrix<uint8_t>& stateMatrix){
+void AES::shiftRows(math::matrix<uint8_t>& stateMatrix){
+	//TODO
+	std::vector<uint8_t> vec;
+	for(uint8_t i=1; i<stateMatrix.getRowsSize(); i++){
+		vec = stateMatrix.getMathRow(i).getValues();
+		
+	}
+	stateMatrix.getMathRow(0).print();
+}
+
+void AES::subBytes(math::matrix<uint8_t>& stateMatrix){
+	/* @Description: parses the current state matrix and substitutes each byte with its
+	 * corresponded byte defined in "lookup.hpp".
+	 *
+	 * Ex: byte         = 0xEA 
+	 *     substitution = 0x87
+	 */
+	std::vector<std::vector<uint8_t>> values = stateMatrix.getValues();
+	for(uint8_t i=0; i<stateMatrix.getRowsSize(); i++){
+		for(uint8_t j=0; j<stateMatrix.getColumnsSize(); j++){
+			values[i][j] = sBlock[byteUpperBits(values[i][j])][byteLowerBits(values[i][j])];
+		}
+	}
+	stateMatrix.setValues(values);
+}
+
+void AES::addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, math::matrix<uint8_t>& stateMatrix){
 	// Key is a list of words, stateMatrix is a list of bytes
 	// TODO: Combine them in a way
-	int keyIndex = round*4;
-	std::array<uint8_t, 4> keyBytes;
+	uint8_t keyIndex = round*4, stateIndex = 0;
+	math::vector<uint8_t> vec;
 	for(int i=keyIndex; i<(keyIndex+4); i++){
-			
+		vec = stateMatrix.getMathColumn(stateIndex) ^ math::vector<uint8_t>(wordToByteVector(keyList[i]));
+		stateMatrix.replaceColumn(vec, stateIndex);
+		stateIndex++;
 	}
 }
 
 // work with words as it makes the substitution easier
 void AES::expandKey(std::vector<unsigned int>& wordList){
-	if(!this->mKeySize){
-		throw std::length_error("Wrong key size!");
-	}	
-
 	/* @Description: for each 4 bytes create one word and add it to the list, they words will be
 	 *		 arranged column wise. Therefore words will also be column wise as well.
 	 *		 This is due to the addRoundKey-Function used later by the
@@ -86,6 +113,10 @@ void AES::expandKey(std::vector<unsigned int>& wordList){
 	 *
 	 *
 	 */
+	if(!this->mKeySize){
+		throw std::length_error("Wrong key size!");
+	}	
+
 	std::array<uint8_t, 4> arr;
 
 	for(size_t i=0; i<this->Nk; i++){
@@ -100,10 +131,8 @@ void AES::expandKey(std::vector<unsigned int>& wordList){
 	for(int i=this->Nk; i<(this->Nb*(this->Nr+1)); i++){
 		tempWord = wordList.back();
 		if(!(i%this->Nk)){
-			//check if these work and move on
 			this->rotateWord(tempWord);
 			this->substituteWord(tempWord);
-			// until here works
 			tempWord ^= Rcon[i/4];
 		}
 		wordList.push_back(*(&(wordList.back())-3) ^ tempWord);

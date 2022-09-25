@@ -169,6 +169,18 @@ math::vector<T> math::vector<T>::operator^(const math::vector<T>& vec){
 	ret.setValues(retVal);
 	return ret;
 }
+
+template<class T>
+void math::vector<T>::operator^=(const math::vector<T>& vec){
+	if(this->mTranspose != vec.getTranspose() || this->mDimension != vec.getDimension()){
+		throw std::invalid_argument("vector::XOR-EQUALS-Operator(): operands do not match! Check dimension or transpose-flag.\n");
+	}
+	std::vector<T> vecVal = vec.getValues();
+	for(uint32_t i=0; i<this->mDimension; i++){
+		this->mValues[i] ^= vecVal[i];
+	}
+}
+
 /* IDK why is not working:w
 template<class U>
 std::ostream& math::operator<<(std::ostream& os, const math::vector<U>& vec){

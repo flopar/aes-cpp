@@ -20,8 +20,8 @@ math::matrix<T>::matrix(){
 
 template<class T>
 math::matrix<T>::matrix(const uint32_t rows, const uint32_t columns, bool transpose){
-	this->mRows = rows;
-	this->mColumns = columns;
+	this->mRows = rows-1;
+	this->mColumns = columns-1;
 	for(unsigned int i = 0; i < rows; i++){
 		this->mValues.push_back(std::vector<T>(columns, 0));
 	}
@@ -38,12 +38,15 @@ math::matrix<T>::matrix(const std::vector<std::vector<T>> matrix, bool transpose
 	}
 	//Check matrix content
 	size_t sizeCheck;
+	this->mRows = matrix.size()-1;
 	for(size_t i = 0; i < matrix.size(); i++){
 		if(!i){
 			sizeCheck = matrix[0].size();
+			this->mColumns = sizeCheck-1;
 			if(sizeCheck < 1){
 				throw std::logic_error("matrix(): Uninitalized row in the matrix");
 			}
+			// if this is one, this is not a matrix anymore, it is a vector
 			if(sizeCheck == 1){
 				throw std::logic_error("matrix(): matrix's row/column size cannot be one");
 			}
@@ -60,20 +63,20 @@ math::matrix<T>::matrix(const std::vector<std::vector<T>> matrix, bool transpose
 }
 
 template<class T>
-uint32_t math::matrix<T>::getNumberOfRows() const{
+uint32_t math::matrix<T>::getRowsSize() const{
 	return this->mRows+1;
 }
 
 template<class T>
-uint32_t math::matrix<T>::getNumberOfColumns() const{
+uint32_t math::matrix<T>::getColumnsSize() const{
 	return this->mColumns+1;
 }
 
 template<class T>
-void math::matrix<T>::print(){
+void math::matrix<T>::print() const{
 	std::string separator="|";
 	size_t rowSize=0;
-	std::cout << "Size: " << this->mColumns <<"x"<<this->mRows<<"\n";
+	std::cout << "Size: " << this->getColumnsSize() <<"x"<<this->getRowsSize()<<"\n";
 	for(size_t i = 0; i<this->mValues.size(); i++){
 		rowSize = this->mValues[i].size();
 		for(size_t j = 0; j<rowSize; j++){
@@ -89,7 +92,7 @@ void math::matrix<T>::print(){
 
 template<class T>
 void math::matrix<T>::addRow(const std::vector<T> row){
-	if(row.size() != this->mColumns){
+	if(row.size() != this->getColumnsSize()){
 		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.size())+"\n");
 	}
 	this->mValues.push_back(row);
@@ -101,7 +104,7 @@ void math::matrix<T>::addRow(const math::vector<T> row){
 	if(!row.getTranspose()){
 		throw std::logic_error("addRow(): Wrong vector format");
 	}
-	if(row.getDimension() != this->mColumns){
+	if(row.getDimension() != this->getColumnsSize()){
 		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.getDimension())+"\n");
 	}
 	this->mValues.push_back(row.getValues());
@@ -110,10 +113,10 @@ void math::matrix<T>::addRow(const math::vector<T> row){
 
 template<class T>
 void math::matrix<T>::replaceRow(const std::vector<T> row, const uint32_t index){
-	if(index < 0 || index >= this->mRows){
+	if(index > this->mRows){
 		throw std::out_of_range("replaceRow(): position is out of range");
 	}
-	if(row.size() != this->mColumns){
+	if(row.size() != this->getColumnsSize()){
 		throw std::length_error("replaceRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.size())+"\n");
 	}
 	this->mValues[index] = row;
@@ -121,7 +124,7 @@ void math::matrix<T>::replaceRow(const std::vector<T> row, const uint32_t index)
 
 template<class T>
 void math::matrix<T>::replaceRow(const math::vector<T> row, const uint32_t index){
-	if(row.getTranspose()){
+	if(!row.getTranspose()){
 		throw std::invalid_argument("replaceRow(): wrong vector format, untransposed vector expected");
 	}
 	this->replaceRow(row.getValues(), index);
@@ -152,7 +155,7 @@ void math::matrix<T>::addColumn(const math::vector<T> column){
 	if(!column.getTranspose()){
 		throw std::logic_error("addColumn(): Wrong vector format");
 	}
-	if(column.getDimension() != this->mRows){
+	if(column.getDimension() != this->getRowsSize()){
 		throw std::length_error("addColumn(): Wrong column size, expected: "+std::to_string(this->mRows)+", actual: "+std::to_string(column.getDimension())+"\n");
 	}
 	for(size_t i = 0; i<this->mValues.size(); i++){
@@ -163,20 +166,20 @@ void math::matrix<T>::addColumn(const math::vector<T> column){
 
 template<class T>
 void math::matrix<T>::replaceColumn(const std::vector<T> column, uint32_t index){
-	if(index >= this->mColumns || index < 0){
-		throw std::out_of_range("replaceColumn(): position is out of range!");
+	if(index > this->mColumns){
+		throw std::out_of_range("replaceColumn(): position is out of range! index: " + std::to_string(index) + "\n");
 	}
-	if(column.size() != this->mRows){
+	if(column.size() != this->getRowsSize()){
 		throw std::length_error("replaceColumn(); Wrong column size, expected: "+std::to_string(this->mRows)+", actual: "+std::to_string(column.size())+"\n");
 	}
-	for(uint32_t i=0; i<this->mRows; i++){
+	for(uint32_t i=0; i<this->getRowsSize(); i++){
 		this->mValues[i][index] = column[i];
 	}
 }
 
 template<class T>
 void math::matrix<T>::replaceColumn(const math::vector<T> column, uint32_t index){
-	if(!column.getTranspose()){
+	if(column.getTranspose()){
 		throw std::logic_error("replaceColumn(): Wrong vector format!");
 	}
 	this->replaceColumn(column.getValues(), index);
@@ -236,9 +239,9 @@ std::vector<std::vector<T>> math::matrix<T>::getValues() const{
 template<class T>
 void math::matrix<T>::setValues(const std::vector<std::vector<T>> values){
 	this->mValues = values;
-	this->mColumns = values[0].size();
+	this->mColumns = values[0].size()-1;
 	for(uint32_t i=0; i<values.size(); i++){
-		if(values[i].size() != this->mColumns){
+		if(values[i].size() != this->getColumnsSize()){
 			throw std::length_error("setValues(): cannot set values. Rows have different size.\n");
 		}
 		else{
@@ -249,13 +252,13 @@ void math::matrix<T>::setValues(const std::vector<std::vector<T>> values){
 
 template<class T>
 math::matrix<T> math::matrix<T>::operator^(const math::matrix<T> matrix){
-	if(this->mColumns+1 != matrix.getNumberOfColumns() || this->mRows+1 != matrix.getNumberOfRows()){
+	if(this->getColumnsSize() != matrix.getColumnsSize() || this->getRowsSize() != matrix.getRowsSize()){
 		throw std::invalid_argument("XOR Operation: the sizes of the operands do no match!");
 	}
-	math::matrix<T> ret(this->mRows, this->mColumns);
+	math::matrix<T> ret(this->getRowsSize(), this->getColumnsSize());
 	std::vector<std::vector<T>> val = ret.getValues(), matrixVal = matrix.getValues();
-	for(uint32_t i=0; i<this->mRows; i++){
-		for(uint32_t j=0; j<this->mColumns; j++){
+	for(uint32_t i=0; i<this->getRowsSize(); i++){
+		for(uint32_t j=0; j<this->getColumnsSize(); j++){
 			val[i][j] = this->mValues[i][j]^matrixVal[i][j];
 		}
 	}

@@ -15,7 +15,7 @@ void testSUG(AES test){
 
 
 int main(){
-
+/*
 	math::matrix<uint8_t>mat;
 	mat.print();
 	math::matrix<uint8_t>mat1(2,2);
@@ -47,11 +47,13 @@ int main(){
 	math::vector<uint8_t> vt2(vec2);
 	vt1.print();
 	vt2.print();
-	math::vector<uint8_t> vt3 = vt1^vt2;
-	vt3.print();
+	//math::vector<uint8_t> vt3 = vt1^vt2;
+	//vt3.print();
+	vt1^=vt2;
+	vt1.print();*/
 	// INFO: AES(key, message)
-//	AES t = AES("SuperSecretKey3!","SuperSecretMessg");
-//	t.encrypt();
+	AES t = AES("SuperSecretKey3!","SuperSecretMessg");
+	t.encrypt();
 
 	return 0;
 

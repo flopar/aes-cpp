@@ -40,6 +40,7 @@ class vector{
 		math::vector<T> operator+(const math::vector<T>& vec);
 		uint64_t operator*(const math::vector<T>& vec);
 		math::vector<T> operator^(const math::vector<T>& vec);		
+		void operator^=(const math::vector<T>& vec);
 		/* --- Utility --- */
 		// print function should be replaced by overloading the <<-Operator
 		void print();
