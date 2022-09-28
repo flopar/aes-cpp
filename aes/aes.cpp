@@ -42,26 +42,29 @@ void AES::setMessage(const std::string message){
 std::string AES::encrypt(){
 	std::vector<unsigned int> keyList;
 	this->expandKey(keyList);
-	//until here works
 	math::matrix<uint8_t> stateMatrix(this->createStateMatrix());
 	this->addRoundKey(0, keyList, stateMatrix);
 	for(uint8_t i=1; i<this->Nb; i++){
 		this->subBytes(stateMatrix);
+		this->shiftRows(stateMatrix);
 		//until here works
-		//this->shiftRows(stateMatrix);
+		this->mixColumns(stateMatrix);
 		//this->addRoundKey(i, keyList, stateMatrix);
 	}
 	return "";
 }
 
+void AES::mixColumns(math::matrix<uint8_t>& stateMatrix){
+
+}
+
 void AES::shiftRows(math::matrix<uint8_t>& stateMatrix){
-	//TODO
 	std::vector<uint8_t> vec;
 	for(uint8_t i=1; i<stateMatrix.getRowsSize(); i++){
 		vec = stateMatrix.getMathRow(i).getValues();
-		
+		std::rotate(vec.begin(), vec.begin()+i, vec.end());
+		stateMatrix.replaceRow(vec, i);
 	}
-	stateMatrix.getMathRow(0).print();
 }
 
 void AES::subBytes(math::matrix<uint8_t>& stateMatrix){

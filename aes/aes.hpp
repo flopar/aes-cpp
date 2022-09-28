@@ -37,6 +37,7 @@ class AES{
 		void addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, math::matrix<uint8_t>& stateMatrix);
 		void subBytes(math::matrix<uint8_t>& stateMatrix);	
 		void shiftRows(math::matrix<uint8_t>& stateMatrix);
+		void mixColumns(math::matrix<uint8_t>& stateMatrix);
 	public:
 		AES(const std::string key, std::string message);
 		AES() noexcept;
