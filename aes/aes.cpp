@@ -39,29 +39,52 @@ void AES::setMessage(const std::string message){
 }
 
 // here begins the fun T_T
-std::string AES::encrypt(){
+void AES::encrypt(){
 	std::vector<unsigned int> keyList;
 	this->expandKey(keyList);
 	math::matrix<uint8_t> stateMatrix(this->createStateMatrix());
 	this->addRoundKey(0, keyList, stateMatrix);
-	for(uint8_t i=1; i<this->Nb; i++){
+	for(uint8_t i=1; i<this->Nr-1; i++){
 		this->subBytes(stateMatrix);
 		this->shiftRows(stateMatrix);
-		//until here works
 		this->mixColumns(stateMatrix);
-		//this->addRoundKey(i, keyList, stateMatrix);
+		this->addRoundKey(i, keyList, stateMatrix);
 	}
-	return "";
+	this->subBytes(stateMatrix);
+	this->shiftRows(stateMatrix);
+	this->addRoundKey(Nr, keyList, stateMatrix);
+	this->createMessageFromMatrix(stateMatrix.getValues());
 }
 
 void AES::mixColumns(math::matrix<uint8_t>& stateMatrix){
-
+	uint32_t sum=0;
+	std::vector<uint8_t> result;
+	for(uint32_t i=0; i<stateMatrix.getColumnsSize(); i++){
+		result.clear();
+		std::vector<uint8_t> vec = stateMatrix.getColumn(i);
+		for(uint8_t j=0; j<16; j++){
+			if((j%4 == 0 && j!= 0)||(j==15)){
+				result.push_back(sum);
+				sum=0;
+			}
+			if(MDSMatrix[j] == 0x02){
+				sum ^= GF2[vec[j%4]];		
+			}
+			else if(MDSMatrix[j] == 0x03){
+				sum ^= GF3[vec[j%4]];
+			}
+			else{
+				sum ^= vec[j%4];
+			}
+		}
+		stateMatrix.replaceColumn(result, i);
+	}
 }
 
 void AES::shiftRows(math::matrix<uint8_t>& stateMatrix){
 	std::vector<uint8_t> vec;
 	for(uint8_t i=1; i<stateMatrix.getRowsSize(); i++){
-		vec = stateMatrix.getMathRow(i).getValues();
+		vec = stateMatrix.getRow(i);
 		std::rotate(vec.begin(), vec.begin()+i, vec.end());
 		stateMatrix.replaceRow(vec, i);
 	}
@@ -174,7 +197,15 @@ void AES::substituteByte(uint8_t& byte){
 	byte = sBlock[int((byte&(mask<<4))>>4)][int(mask&byte)];
 }
 
-// Works
+std::string AES::createMessageFromMatrix(const std::vector<std::vector<uint8_t>>& stateMatrix){
+	for(uint32_t i=0; i<4; i++){
+		for(uint32_t j=0; j<Nb; j++){
+			//TODO -> recreate message from state matrix
+		}
+	}
+	return "";
+}
+
 std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
 	/* @Description: this function will take the passed message and create a a 4x4 state matrix
 	 *		 as described in the aes-standard. The matrix has the following layout:
@@ -199,8 +230,3 @@ std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
 	}
 	return stateMatrix;
 }
-
-
-
-
-

@@ -1,6 +1,5 @@
 #include <aes.hpp>
 #include <iostream>
-#include <utility.hpp>
 
 
 void testSUG(AES test){

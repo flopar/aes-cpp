@@ -93,7 +93,7 @@ void math::matrix<T>::print() const{
 template<class T>
 void math::matrix<T>::addRow(const std::vector<T> row){
 	if(row.size() != this->getColumnsSize()){
-		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.size())+"\n");
+		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->getColumnsSize())+", actual: "+std::to_string(row.size())+"\n");
 	}
 	this->mValues.push_back(row);
 	this->mRows++;
@@ -105,7 +105,7 @@ void math::matrix<T>::addRow(const math::vector<T> row){
 		throw std::logic_error("addRow(): Wrong vector format");
 	}
 	if(row.getDimension() != this->getColumnsSize()){
-		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.getDimension())+"\n");
+		throw std::length_error("addRow(): Wrong row size, expected: "+std::to_string(this->getColumnsSize())+", actual: "+std::to_string(row.getDimension())+"\n");
 	}
 	this->mValues.push_back(row.getValues());
 	this->mRows++;
@@ -117,7 +117,7 @@ void math::matrix<T>::replaceRow(const std::vector<T> row, const uint32_t index)
 		throw std::out_of_range("replaceRow(): position is out of range");
 	}
 	if(row.size() != this->getColumnsSize()){
-		throw std::length_error("replaceRow(): Wrong row size, expected: "+std::to_string(this->mColumns)+", actual: "+std::to_string(row.size())+"\n");
+		throw std::length_error("replaceRow(): Wrong row size, expected: "+std::to_string(this->getColumnsSize())+", actual: "+std::to_string(row.size())+"\n");
 	}
 	this->mValues[index] = row;
 }
@@ -133,7 +133,7 @@ void math::matrix<T>::replaceRow(const math::vector<T> row, const uint32_t index
 template<class T>
 void math::matrix<T>::removeRow(const uint32_t row){
 	if(row > this->mRows){
-		throw std::out_of_range("removeRow(): Passed row does not exist in the given matrix, max rows: "+std::to_string(this->mRows)+"\n");
+		throw std::out_of_range("removeRow(): Passed row does not exist in the given matrix, max rows: "+std::to_string(this->getRowsSize())+"\n");
 	}
 	this->mValues.erase(this->mValues.begin()+(row-1));
 	this->mRows--;
@@ -141,8 +141,8 @@ void math::matrix<T>::removeRow(const uint32_t row){
 
 template<class T>
 void math::matrix<T>::addColumn(const std::vector<T> column){
-	if(column.size() != this->mRows){
-		throw std::length_error("addColumn(): Wrong coulmn size, expected: "+std::to_string(this->mRows)+", actual: "+std::to_string(column.size())+"\n");
+	if(column.size() != this->getRowsSize()){
+		throw std::length_error("addColumn(): Wrong coulmn size, expected: "+std::to_string(this->getRowsSize())+", actual: "+std::to_string(column.size())+"\n");
 	}
 	for(size_t i = 0; i<this->mValues.size(); i++){
 		this->mValues[i].push_back(column[i]);
@@ -156,7 +156,7 @@ void math::matrix<T>::addColumn(const math::vector<T> column){
 		throw std::logic_error("addColumn(): Wrong vector format");
 	}
 	if(column.getDimension() != this->getRowsSize()){
-		throw std::length_error("addColumn(): Wrong column size, expected: "+std::to_string(this->mRows)+", actual: "+std::to_string(column.getDimension())+"\n");
+		throw std::length_error("addColumn(): Wrong column size, expected: "+std::to_string(this->getRowsSize())+", actual: "+std::to_string(column.getDimension())+"\n");
 	}
 	for(size_t i = 0; i<this->mValues.size(); i++){
 		this->mValues[i].push_back(column.getValues().at(i));
@@ -170,7 +170,7 @@ void math::matrix<T>::replaceColumn(const std::vector<T> column, uint32_t index)
 		throw std::out_of_range("replaceColumn(): position is out of range! index: " + std::to_string(index) + "\n");
 	}
 	if(column.size() != this->getRowsSize()){
-		throw std::length_error("replaceColumn(); Wrong column size, expected: "+std::to_string(this->mRows)+", actual: "+std::to_string(column.size())+"\n");
+		throw std::length_error("replaceColumn(); Wrong column size, expected: "+std::to_string(this->getRowsSize())+", actual: "+std::to_string(column.size())+"\n");
 	}
 	for(uint32_t i=0; i<this->getRowsSize(); i++){
 		this->mValues[i][index] = column[i];
