@@ -14,6 +14,7 @@ std::vector<uint8_t> wordToByteVector(uint32_t word){
 	std::vector<uint8_t> vec;
 	for(uint8_t i=0; i<4; i++){
 		vec.emplace_back((word & (0xFF<<(8*i)))>>(8*i));
+		std::rotate(vec.rbegin(), vec.rbegin()+1, vec.rend());
 	}
 	return vec;
 }

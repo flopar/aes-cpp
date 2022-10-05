@@ -34,7 +34,7 @@ class AES{
 		void substituteByte(uint8_t& byte);
 		
 		std::vector<std::vector<uint8_t>> createStateMatrix();
-		std::string createMessageFromMatrix(const std::vector<std::vector<uint8_t>>& stateMatrix);
+		void createMessageFromMatrix(const math::matrix<uint8_t>& stateMatrix);
 		void addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, math::matrix<uint8_t>& stateMatrix);
 		void subBytes(math::matrix<uint8_t>& stateMatrix);	
 		void shiftRows(math::matrix<uint8_t>& stateMatrix);

@@ -43,8 +43,9 @@ void AES::encrypt(){
 	std::vector<unsigned int> keyList;
 	this->expandKey(keyList);
 	math::matrix<uint8_t> stateMatrix(this->createStateMatrix());
+	stateMatrix.print();
 	this->addRoundKey(0, keyList, stateMatrix);
-	for(uint8_t i=1; i<this->Nr-1; i++){
+	for(uint8_t i=1; i<this->Nr; i++){
 		this->subBytes(stateMatrix);
 		this->shiftRows(stateMatrix);
 		this->mixColumns(stateMatrix);
@@ -53,7 +54,7 @@ void AES::encrypt(){
 	this->subBytes(stateMatrix);
 	this->shiftRows(stateMatrix);
 	this->addRoundKey(Nr, keyList, stateMatrix);
-	this->createMessageFromMatrix(stateMatrix.getValues());
+	this->createMessageFromMatrix(stateMatrix);
 }
 
 void AES::mixColumns(math::matrix<uint8_t>& stateMatrix){
@@ -63,7 +64,7 @@ void AES::mixColumns(math::matrix<uint8_t>& stateMatrix){
 		result.clear();
 		std::vector<uint8_t> vec = stateMatrix.getColumn(i);
 		for(uint8_t j=0; j<16; j++){
-			if((j%4 == 0 && j!= 0)||(j==15)){
+			if((j%4 == 0 && j!= 0)){
 				result.push_back(sum);
 				sum=0;
 			}
@@ -75,6 +76,10 @@ void AES::mixColumns(math::matrix<uint8_t>& stateMatrix){
 			}
 			else{
 				sum ^= vec[j%4];
+			}
+			if(j==15){
+				result.push_back(sum);
+				sum=0;
 			}
 		}
 		stateMatrix.replaceColumn(result, i);
@@ -108,7 +113,6 @@ void AES::subBytes(math::matrix<uint8_t>& stateMatrix){
 
 void AES::addRoundKey(const uint8_t round, const std::vector<unsigned int>& keyList, math::matrix<uint8_t>& stateMatrix){
 	// Key is a list of words, stateMatrix is a list of bytes
-	// TODO: Combine them in a way
 	uint8_t keyIndex = round*4, stateIndex = 0;
 	math::vector<uint8_t> vec;
 	for(int i=keyIndex; i<(keyIndex+4); i++){
@@ -151,7 +155,7 @@ void AES::expandKey(std::vector<unsigned int>& wordList){
 			arr[j] = this->mKey[(i*4)+(3-j)];
 		}
 		wordList.push_back(bytesToWord(arr));
-	}	
+	}
 	uint32_t tempWord=0;
 	// expand key
 	for(int i=this->Nk; i<(this->Nb*(this->Nr+1)); i++){
@@ -159,7 +163,7 @@ void AES::expandKey(std::vector<unsigned int>& wordList){
 		if(!(i%this->Nk)){
 			this->rotateWord(tempWord);
 			this->substituteWord(tempWord);
-			tempWord ^= Rcon[i/4];
+			tempWord ^= Rcon[(i/4)-1];
 		}
 		wordList.push_back(*(&(wordList.back())-3) ^ tempWord);
 	}
@@ -197,13 +201,15 @@ void AES::substituteByte(uint8_t& byte){
 	byte = sBlock[int((byte&(mask<<4))>>4)][int(mask&byte)];
 }
 
-std::string AES::createMessageFromMatrix(const std::vector<std::vector<uint8_t>>& stateMatrix){
-	for(uint32_t i=0; i<4; i++){
-		for(uint32_t j=0; j<Nb; j++){
-			//TODO -> recreate message from state matrix
+void AES::createMessageFromMatrix(const math::matrix<uint8_t>& stateMatrix){
+	this->mMessage = "";
+	std::vector<uint8_t> column;
+	for(uint8_t i=0; i<stateMatrix.getColumnsSize(); i++){
+		column = stateMatrix.getColumn(i);
+		for(uint8_t j=0; j<column.size(); j++){
+			this->mMessage += (char)column[j];
 		}
 	}
-	return "";
 }
 
 std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
@@ -224,9 +230,11 @@ std::vector<std::vector<uint8_t>> AES::createStateMatrix(){
 	std::vector<uint8_t> column;
 	for(int i=0; i<4; i++){
 		for(int j=0; j<Nb; j++){
-			column.emplace_back(std::move(this->mMessage[(j*4)+i]));
+			// bitwise AND operation on the number as some values will have their upper
+			// 26 bits set to 1, which is undesirable
+			column.emplace_back(0xFF&this->mMessage[(j*4)+i]);
 		}
-		stateMatrix.emplace_back(std::move(column));
+		stateMatrix.push_back(std::move(column));
 	}
 	return stateMatrix;
 }

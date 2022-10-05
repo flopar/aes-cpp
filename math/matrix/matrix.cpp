@@ -75,6 +75,7 @@ uint32_t math::matrix<T>::getColumnsSize() const{
 template<class T>
 void math::matrix<T>::print() const{
 	std::string separator="|";
+	T value;
 	size_t rowSize=0;
 	std::cout << "Size: " << this->getColumnsSize() <<"x"<<this->getRowsSize()<<"\n";
 	for(size_t i = 0; i<this->mValues.size(); i++){
@@ -83,7 +84,7 @@ void math::matrix<T>::print() const{
 			if(j == rowSize-1){
 				separator = "";
 			}
-			std::cout << (unsigned int)this->mValues[i][j] << separator;
+			std::cout << std::hex << (unsigned int)this->mValues[i][j] << separator;
 		}
 		separator="|";
 		std::cout << "\n";

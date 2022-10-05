@@ -150,7 +150,7 @@ void math::vector<T>::print(){
 	}
 	std::cout << "Vector:\t";
 	for(uint64_t index = 0; index < mDimension; index++){
-		std::cout << "[" << (unsigned int)this->mValues[index] << "]"+separator;
+		std::cout << "[" << std::hex << (unsigned int)this->mValues[index] << "]"+separator;
 	}
 	std::cout << std::endl;
 	

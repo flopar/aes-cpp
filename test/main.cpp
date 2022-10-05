@@ -51,9 +51,18 @@ int main(){
 	vt1^=vt2;
 	vt1.print();*/
 	// INFO: AES(key, message)
-	AES t = AES("SuperSecretKey3!","SuperSecretMessg");
+	std::vector<uint8_t> test = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
+	std::vector<uint8_t> test1 = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+	std::string message = "", key ="";
+	for(uint8_t i=0; i<test.size(); i++){
+		message += (char)test[i];
+		key += (char)test1[i];
+	}
+	//AES t = AES("SuperSecretKey3!","SuperSecretMessg");
+	//t.encrypt();
+	AES t = AES(key, message);
 	t.encrypt();
-
+	std::cout << t.getMessage();
 	return 0;
 
 

@@ -19,7 +19,7 @@ class matrix
 
 		uint32_t getRowsSize() const;
 		uint32_t getColumnsSize() const;
-	
+
 		
 		std::vector<T> getRow(const uint32_t row) const;
 		std::vector<T> getColumn(const uint32_t column) const;
